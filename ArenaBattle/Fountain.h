@@ -1,8 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 /*
-	UPROPERTY():		에디터에 엘리먼트를 노출시킴
-						사용자가 선언한 언리얼 오브젝트를 자동으로 관리해줌 (메모리 해제 등)
+	UPROPERTY():		멤버를 에디터에 노출시킴
+						사용자가 선언한 언리얼 오브젝트를 자동으로 관리해줌 (garbage collection)
+						언리얼 오브젝트가 아니라면, 직접 해제해주거나 스마트포인터를 사용해야함
 						VisibleAnywhere:	어디서든 읽기작업 가능
 						EditAnywhere:		어디서든 읽기, 쓰기작업 가능
 	UCLASS():			해당 클래스가 언리얼 오브젝트임을 바깥쪽에 명시
