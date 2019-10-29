@@ -7,6 +7,7 @@
 						언리얼 오브젝트가 아니라면, 직접 해제해주거나 스마트포인터를 사용해야함
 						VisibleAnywhere:	어디서든 읽기작업 가능
 						EditAnywhere:		어디서든 읽기, 쓰기작업 가능
+						Category:			지정한 분류에서 멤버를 관리 가능
 	UCLASS():			해당 클래스가 언리얼 오브젝트임을 바깥쪽에 명시
 	GENERATED_BODY():	해당 클래스가 언리얼 오브젝트임을 안쪽에 명시
 	클래스 접두사:		A:	액터 클래스
@@ -42,7 +43,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(EditAnywhere, Category=ID)
 	int32 ID;
 
 	UPROPERTY(VisibleAnywhere)

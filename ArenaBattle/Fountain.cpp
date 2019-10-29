@@ -34,6 +34,20 @@ AFountain::AFountain()
 	water->SetRelativeLocation({ 0, 0, 135 });
 	light->SetRelativeLocation({ 0, 0, 195 });
 	splash->SetRelativeLocation({ 0, 0, 195 });
+
+	static ConstructorHelpers::FObjectFinder<UStaticMesh>
+		SM_BODY(TEXT("/Game/InfinityBladeGrassLands/Environments/Plains/Env_Plains_Ruins/StaticMesh/SM_Plains_Castle_Fountain_01.SM_Plains_Castle_Fountain_01"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh>
+		SM_WATER(TEXT("/Game/InfinityBladeGrassLands/Effects/FX_Meshes/Env/SM_Plains_Fountain_02.SM_Plains_Fountain_02"));
+	static ConstructorHelpers::FObjectFinder<UParticleSystem>
+		PS_SPLASH(TEXT("/Game/InfinityBladeGrassLands/Effects/FX_Ambient/Water/P_Water_Fountain_Splash_Base_01.P_Water_Fountain_Splash_Base_01"));
+
+	if (SM_BODY.Succeeded())
+		body->SetStaticMesh(SM_BODY.Object);
+	if (SM_WATER.Succeeded())
+		water->SetStaticMesh(SM_WATER.Object);
+	if (PS_SPLASH.Succeeded())
+		splash->SetTemplate(PS_SPLASH.Object);
 }
 
 // Called when the game starts or when spawned
