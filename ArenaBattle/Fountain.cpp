@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 /*
 	Component:				액터에 추가할 수 있는 함수성 조각
 							독립적으로 존재 불가 (액터에 종속)
@@ -11,7 +9,10 @@
 	SetRelativeLocation():	부모를 기준으로 컴포넌트의 위치를 설정
 */
 
+// Fill out your copyright notice in the Description page of Project Settings.
+
 #include "Fountain.h"
+#include <iostream>
 
 // Sets default values
 AFountain::AFountain()
