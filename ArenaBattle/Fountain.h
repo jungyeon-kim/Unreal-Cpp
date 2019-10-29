@@ -1,6 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 /*
+	Actor:				level에 배치할 수 있는 오브젝트
+						3D transformation을 지원
+						베이스 클래스는 AActor
 	UPROPERTY():		멤버를 에디터에 노출시킴
 						사용자가 선언한 언리얼 오브젝트를 자동으로 관리해줌 (garbage collection)
 						언리얼 오브젝트가 아니라면, 직접 해제해주거나 스마트포인터를 사용해야함
