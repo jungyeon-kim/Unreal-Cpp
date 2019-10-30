@@ -13,7 +13,6 @@
 	클래스 접두사:		A:	액터 클래스
 						U:	액터가 아닌 클래스
 						F:	언리얼 오브젝트와 관련없는 일반 클래스나 구조체
-						
 	generated.h:		언리얼 헤더 툴에 의해 자동으로 생성되는 부가파일. 꼭 include 해주어야 함
 	모듈명_API:			DLL 내 클래스 정보를 외부에 공개할지 결정하는 _declspec(dllexport) 키워드를 사용하기위해 명시
 */
@@ -37,7 +36,9 @@ public:
 
 protected:
 	// Called when the game starts or when spawned
+	virtual void PostInitializeComponents() override;
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:	
 	// Called every frame

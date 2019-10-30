@@ -12,7 +12,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Fountain.h"
-#include <iostream>
 
 // Sets default values
 AFountain::AFountain()
@@ -50,6 +49,13 @@ AFountain::AFountain()
 		splash->SetTemplate(PS_SPLASH.Object);
 }
 
+void AFountain::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	ABLOG_S(Warning);
+}
+
 // Called when the game starts or when spawned
 void AFountain::BeginPlay()
 {
@@ -57,6 +63,13 @@ void AFountain::BeginPlay()
 
 	ABLOG_S(Warning);
 	ABLOG(Warning, TEXT("Actor Name : %s, ID : %d, Location X : %.3f"), *GetName(), ID, GetActorLocation().X);
+}
+
+void AFountain::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	ABLOG_S(Warning);
 }
 
 // Called every frame
