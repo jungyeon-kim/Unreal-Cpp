@@ -14,7 +14,7 @@
 */
 
 
-// 함수정리
+// 기능정리
 /*
 	CreateDefaultSubobject():	컴포넌트를 생성하는 용도로 new 키워드 대신 사용
 								컴포넌트 구별을 위해 매개변수로 문자열을 받음 (Hash값 생성에 사용하며, 중복되면 안됨)
@@ -22,6 +22,8 @@
 	RootComponent:			컴포넌트 생성시 반드시 해당 액터를 대표할 RootComponent를 지정해 주어야함
 	SetupAttachment():		해당 컴포넌트를 매개변수의 자식으로 설정
 	SetRelativeLocation():	부모를 기준으로 컴포넌트의 위치를 설정
+	FClassFinder:			에디터에서 블루프린트 클래스를 가져올 때 사용
+	FObjectFinder:			에디터에서 리소스를 가져올 때 사용
 */
 
 

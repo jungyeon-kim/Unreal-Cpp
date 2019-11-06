@@ -21,8 +21,11 @@ AABPawn::AABPawn()
 	SpringArm->TargetArmLength = 400.0f;
 	SpringArm->SetRelativeRotation(FRotator(-15.0f, 0.0f, 0.0f));
 
-	static ConstructorHelpers::FObjectFinder<USkeletalMesh> SK_CHARM_GOLDEN(TEXT("SkeletalMesh'/Game/InfinityBladeWarriors/Character/CompleteCharacters/SK_CharM_Golden.SK_CharM_Golden'"));
+	Mesh->SetAnimationMode(EAnimationMode::AnimationBlueprint);
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> SK_CHARM_GOLDEN{ TEXT("/Game/InfinityBladeWarriors/Character/CompleteCharacters/SK_CharM_Golden.SK_CharM_Golden") };
+	static ConstructorHelpers::FClassFinder<UAnimInstance> WARRIOR_ANIM{ TEXT("/Game/Book/Animation/WarriorAnimBlueprint.WarriorAnimBlueprint_C") };
 	if (SK_CHARM_GOLDEN.Succeeded()) Mesh->SetSkeletalMesh(SK_CHARM_GOLDEN.Object);
+	if (WARRIOR_ANIM.Succeeded()) Mesh->SetAnimInstanceClass(WARRIOR_ANIM.Class);
 }
 
 void AABPawn::BeginPlay()
