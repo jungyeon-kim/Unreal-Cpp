@@ -12,11 +12,11 @@ class ARENABATTLE_API AABPawn : public APawn
 private:
 	void UpDown(float NewAxisValue);
 	void LeftRight(float NewAxisValue);
-public:
-	AABPawn();
 protected:
 	virtual void BeginPlay() override;
 public:	
+	AABPawn();
+
 	virtual void Tick(float DeltaTime) override;
 	virtual void PostInitializeComponents() override;
 	virtual void PossessedBy(AController* NewController);
