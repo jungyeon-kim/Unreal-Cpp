@@ -3,10 +3,12 @@
 	Actor:					level에 배치할 수 있는 오브젝트
 	Component:				액터에 추가할 수 있는 함수성 조각
 							독립적으로 존재 불가 (액터에 종속)
+	RootComponent:			컴포넌트 생성시 반드시 해당 액터를 대표할 RootComponent를 지정해 주어야함
 	Pawn:					플레이어에게 조종당하는 액터
 							FloatingPawnMovement 사용
 	Character:				폰에서 기능을 더 추가한 액터
 							Capsule, Mesh, Movement가 기본적으로 존재 (Get으로 참조가능)
+							Jump() 메서드가 기본적으로 존재
 							CharacterMovement 사용 (중력이 적용된 다양한 애니메이션, 네트워크 자동 동기화)
 	Skeletal Mesh:			애니메이션 재생을 위해 리깅 데이터를 추가한 메시 (스켈레탈 메시 컴포넌트가 관리)
 	Navigation:				목적지를 알려주면 스스로 목적지까지 이동하는 길 찾기 기능
@@ -14,6 +16,8 @@
 	Rigging:				모델링된 데이터에 뼈를 붙이는 작업
 	Axis Mapping:			조이스틱 레버의 신호를 전달 (-1, 0, 1)
 	Action Mapping:			조이스틱 버튼의 신호를 전달 (keyup, keydown)
+	AnimInstance:			애님 그래프가 참조할 데이터를 제공
+	AnimGraph:				애님 인스턴스의 변수 값에 따라 변화하는 애니메이션을 설계
 */
 
 
@@ -22,9 +26,13 @@
 	CreateDefaultSubobject():	컴포넌트를 생성하는 용도로 new 키워드 대신 사용
 								컴포넌트 구별을 위해 매개변수로 문자열을 받음 (Hash값 생성에 사용하며, 중복되면 안됨)
 	TEXT():					모든 플랫폼에서 2byte 문자열 체계(유니코드)를 유지시켜주는 매크로
-	RootComponent:			컴포넌트 생성시 반드시 해당 액터를 대표할 RootComponent를 지정해 주어야함
 	SetupAttachment():		해당 컴포넌트를 매개변수의 자식으로 설정
 	SetRelativeLocation():	부모를 기준으로 컴포넌트의 위치를 설정
+	TryGetPawnOwner():		일반적으로 Tick은 입력 -> 로직 -> 애니메이션 순이다.
+							로직에서 폰이 제거되었다면 애니메이션에서 폰을 참조할 때 유효하지않다.
+							따라서, 폰이 유효한지 검사하는 함수가 이것이다.
+	Cast<T>():				dynamic_cast와 유사
+
 	FClassFinder:			에디터에서 블루프린트 클래스를 가져올 때 사용하는 구조체
 	FObjectFinder:			에디터에서 리소스를 가져올 때 사용하는 구조체
 	FRotationMatrix:		회전된 좌표계 정보를 저장하는 행렬 클래스
@@ -43,6 +51,8 @@
 							EditAnywhere:		어디서든 읽기, 쓰기작업 가능
 							Category:			지정한 분류에서 멤버를 관리 가능
 							AllowPrivateAccess:	private멤버가 블루프린트에 노출됨
+							BlueprintReadOnly:	블루프린트에서 읽기만 가능
+							BlueprintReadWrite:	블루프린트에서 읽기, 쓰기 둘다가능
 	UCLASS():				해당 클래스가 언리얼 오브젝트임을 바깥쪽에 명시
 	GENERATED_BODY():		해당 클래스가 언리얼 오브젝트임을 안쪽에 명시
 	generated.h:			언리얼 헤더 툴에 의해 자동으로 생성되는 부가파일. 꼭 include 해주어야 함

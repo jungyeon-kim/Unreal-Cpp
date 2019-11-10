@@ -24,6 +24,7 @@ AABCharacter::AABCharacter()
 
 	ArmLengthSpeed = 3.0f;
 	ArmRotationSpeed = 10.0f;
+	GetCharacterMovement()->JumpZVelocity = 450.0f;
 }
 
 void AABCharacter::BeginPlay()
@@ -43,12 +44,7 @@ void AABCharacter::Tick(float DeltaTime)
 	case EControlMode::DIABLO:
 		SpringArm->RelativeRotation = FMath::RInterpTo(
 			SpringArm->RelativeRotation, ArmRotationTo, DeltaTime, ArmRotationSpeed);
-		break;
-	}
 
-	switch (CurrentControlMode)
-	{
-	case EControlMode::DIABLO:
 		if (DirectionToMove.SizeSquared() > 0.0f)
 		{
 			GetController()->SetControlRotation(FRotationMatrix::MakeFromX(DirectionToMove).Rotator());
@@ -63,6 +59,7 @@ void AABCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	PlayerInputComponent->BindAction(TEXT("ViewChange"), EInputEvent::IE_Pressed, this, &AABCharacter::ViewChange);
+	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Pressed, this, &AABCharacter::Jump);
 
 	PlayerInputComponent->BindAxis(TEXT("UpDown"), this, &AABCharacter::UpDown);
 	PlayerInputComponent->BindAxis(TEXT("LeftRight"), this, &AABCharacter::LeftRight);
