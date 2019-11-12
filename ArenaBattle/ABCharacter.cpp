@@ -1,4 +1,5 @@
 #include "ABCharacter.h"
+#include "ABAnimInstance.h"
 
 AABCharacter::AABCharacter()
 {
@@ -54,12 +55,22 @@ void AABCharacter::Tick(float DeltaTime)
 	}
 }
 
+void AABCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	ABAnim = Cast<UABAnimInstance>(GetMesh()->GetAnimInstance());
+	ABCHECK(ABAnim);
+	ABAnim->OnMontageEnded.AddDynamic(this, &AABCharacter::OnAttackMontageEnded);	// 멀티캐스트 다이나믹 델리게이트
+}
+
 void AABCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	PlayerInputComponent->BindAction(TEXT("ViewChange"), EInputEvent::IE_Pressed, this, &AABCharacter::ViewChange);
 	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Pressed, this, &AABCharacter::Jump);
+	PlayerInputComponent->BindAction(TEXT("Attack"), EInputEvent::IE_Pressed, this, &AABCharacter::Attack);
 
 	PlayerInputComponent->BindAxis(TEXT("UpDown"), this, &AABCharacter::UpDown);
 	PlayerInputComponent->BindAxis(TEXT("LeftRight"), this, &AABCharacter::LeftRight);
@@ -126,6 +137,20 @@ void AABCharacter::ViewChange()
 		SetControlMode(EControlMode::GTA);
 		break;
 	}
+}
+
+void AABCharacter::Attack()
+{
+	if (IsAttacking) return;
+
+	ABAnim->PlayAttackMontange();
+	IsAttacking = true;
+}
+
+void AABCharacter::OnAttackMontageEnded(UAnimMontage * Montage, bool bInterrupted)
+{
+	ABCHECK(IsAttacking);
+	IsAttacking = false;
 }
 
 void AABCharacter::SetControlMode(EControlMode NewControlMode)

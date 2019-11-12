@@ -13,8 +13,12 @@ private:
 	float CurrentPawnSpeed;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Pawn, Meta = (AllowPrivateAccess = true))
 	bool IsOnAir;
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
+	UAnimMontage* AttackMontage;
 public:
 	UABAnimInstance();
 
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
+
+	void PlayAttackMontange();
 };
