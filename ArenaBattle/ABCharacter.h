@@ -12,7 +12,15 @@ class ARENABATTLE_API AABCharacter : public ACharacter
 	GENERATED_BODY()
 private:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
-	bool IsAttacking;
+	bool IsAttacking;		// 공격중인지 여부
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
+	bool CanNextCombo;		// 다음 콤보 실행가능 여부
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
+	bool IsComboInputOn;	// 콤보 입력 여부
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
+	int32 CurrentCombo;		// 현재 실행중인 콤보
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
+	int32 MaxCombo;			// 콤보의 최대치
 	UPROPERTY()
 	class UABAnimInstance* ABAnim;
 private:
@@ -23,8 +31,11 @@ private:
 
 	void ViewChange();
 	void Attack();
+	void AttackEnd();
 	UFUNCTION()
 	void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+	void AttackStartComboState();
+	void AttackEndComboState();	
 protected:
 	enum class EControlMode
 	{

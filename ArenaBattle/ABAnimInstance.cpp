@@ -23,3 +23,26 @@ void UABAnimInstance::PlayAttackMontange()
 {
 	Montage_Play(AttackMontage, 1.0f);
 }
+
+void UABAnimInstance::JumpToAttackMontageSection(int32 NewSection)
+{
+	ABCHECK(Montage_IsPlaying(AttackMontage));
+	Montage_JumpToSection(GetAttackMontageSectionName(NewSection), AttackMontage);
+}
+
+void UABAnimInstance::AnimNotify_AttackHitCheck()
+{
+	OnNextHitCheck.Broadcast();	// 델리게이트에 등록된 모든 함수를 호출
+}
+
+void UABAnimInstance::AnimNotify_NextAttackCheck()
+{
+	OnNextAttackCheck.Broadcast();
+}
+
+FName UABAnimInstance::GetAttackMontageSectionName(int32 Section)
+{
+	ABCHECK(FMath::IsWithinInclusive(Section, 1, 4), NAME_None);
+	
+	return static_cast<FName>(*FString::Printf(TEXT("Attack%d"), Section));
+}
