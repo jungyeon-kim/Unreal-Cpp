@@ -30,7 +30,7 @@
 	Query:					물체간의 오버랩, 레이캐스트, 스윕등 충돌탐지를 할 때 사용
 	Overlap:				두 충돌체가 겹쳤는지 판단한다.
 	Trace(Ray Cast):		시작점에서 끝점까지 레이저를 발사해 부딫히는 충돌체가 있는지 판단한다.
-	Sweep:					충돌체가 한 프레임에 움직인 경로를 예측한다. (직선의 움직임에만 사용가능)
+	Sweep:					충돌체가 한 프레임에 움직인 경로를 예측해 부딫히는 다른 충돌체가 있는지 판단한다.
 							충돌체가 구형태였다면 캡슐이 형성될 것이다.
 	Object Channel:			양방향 충돌체크
 	Trace Channel:			단방향 충돌체크 (주체는 충돌체크를 하지않음)
@@ -48,13 +48,21 @@
 							로직에서 폰이 제거되었다면 애니메이션에서 폰을 참조할 때 유효하지않다.
 							따라서, 폰이 유효한지 검사하는 함수가 이것이다.
 	Cast<T>():				dynamic_cast와 유사
-	OnMontageEnded():		몽타주 재생이 끝나면 발동하는 델리게이트
 	TakeDamege():			액터에게 데미지를 전달 (세기, 종류, 가해자, 사용 도구)
 	SetActorEnableCollision():	액터의 충돌설정을 on / off
+	SetCollisionProfileName():	어떤 콜리전 프리셋을 사용할 것인지 지정한다.
+	SpawnActor<>():			월드에 액터를 생성한다.
+	AttachToComponent():	컴포넌트에 부착시킨다.
+	StaticClass():			런타임에 이 클래스를 나타내는 UClass 객체를 반환
+
+	OnMontageEnded():		몽타주 재생이 끝나면 발동하는 델리게이트
+	OnComponentBeginOvelap():	Overlap 이벤트가 발생할 때마다 발동하는 델리게이트 (박스 컴포넌트에 존재)
 
 	FClassFinder:			에디터에서 블루프린트 클래스를 가져올 때 사용하는 구조체
 	FObjectFinder:			에디터에서 리소스를 가져올 때 사용하는 구조체
 	FRotationMatrix:		회전된 좌표계 정보를 저장하는 행렬 클래스
+	TSubclassOf<>:			특정 클래스와 상속받은 클래스들로 선언 목록을 제한해주는 키워드
+							UCLASS는 모든 언리얼 오브젝트에 대한 선언이 보이기 때문에 사용
 */
 
 

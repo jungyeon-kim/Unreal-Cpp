@@ -1,5 +1,6 @@
 #include "ABCharacter.h"
 #include "ABAnimInstance.h"
+#include "ABWeapon.h"
 #include "DrawDebugHelpers.h"
 
 AABCharacter::AABCharacter()
@@ -9,6 +10,7 @@ AABCharacter::AABCharacter()
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SPRINGARM"));
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("CAMERA"));
 
+	RootComponent = GetCapsuleComponent();
 	SpringArm->SetupAttachment(GetCapsuleComponent());
 	Camera->SetupAttachment(SpringArm);
 
@@ -16,7 +18,6 @@ AABCharacter::AABCharacter()
 	SpringArm->SetRelativeRotation({ -15.0f, 0.0f, 0.0f });
 	SpringArm->TargetArmLength = 400.0f;
 
-	GetCapsuleComponent()->SetCollisionProfileName(TEXT("ABCharacter"));
 	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> SK_CHARM_GOLDEN{ TEXT("/Game/InfinityBladeWarriors/Character/CompleteCharacters/SK_CharM_Golden.SK_CharM_Golden") };
 	static ConstructorHelpers::FClassFinder<UAnimInstance> WARRIOR_ANIM{ TEXT("/Game/Book/Animation/WarriorAnimBlueprint.WarriorAnimBlueprint_C") };
@@ -24,6 +25,7 @@ AABCharacter::AABCharacter()
 	if (WARRIOR_ANIM.Succeeded()) GetMesh()->SetAnimInstanceClass(WARRIOR_ANIM.Class);
 
 	SetControlMode(EControlMode::GTA);
+	GetCapsuleComponent()->SetCollisionProfileName(TEXT("ABCharacter"));	// 콜리전 프리셋 변경
 
 	ArmLengthSpeed = 3.0f;
 	ArmRotationSpeed = 10.0f;
@@ -36,6 +38,10 @@ AABCharacter::AABCharacter()
 void AABCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	auto CurWeapon{ GetWorld()->SpawnActor<AABWeapon>() };
+	if (CurWeapon) CurWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale,
+		TEXT("hand_rSocket"));
 }
 
 void AABCharacter::Tick(float DeltaTime)
@@ -220,7 +226,7 @@ void AABCharacter::AttackCheck()
 		GetActorLocation(),
 		GetActorLocation() + GetActorForwardVector() * AttackLength,
 		FQuat::Identity,
-		ECollisionChannel::ECC_GameTraceChannel2,
+		ECollisionChannel::ECC_GameTraceChannel2,	// Attack 트레이스 채널
 		FCollisionShape::MakeSphere(AttackRadius),
 		Params);
 
