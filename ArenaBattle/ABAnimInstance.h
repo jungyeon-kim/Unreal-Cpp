@@ -15,7 +15,9 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Pawn, Meta = (AllowPrivateAccess = true))
 	float CurrentPawnSpeed;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Pawn, Meta = (AllowPrivateAccess = true))
-	bool IsOnAir;
+	bool bIsOnAir;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Pawn, Meta = (AllowPrivateAccess = true))
+	bool bIsDead;
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
 	UAnimMontage* AttackMontage;
 private:
@@ -25,7 +27,7 @@ private:
 	void AnimNotify_NextAttackCheck();
 	FName GetAttackMontageSectionName(int32 Section);
 public:
-	FOnNextHitCheckDelegate OnNextHitCheck{};
+	FOnNextHitCheckDelegate OnAttackHitCheck{};
 	FOnNextAttackCheckDelegate OnNextAttackCheck{};
 public:
 	UABAnimInstance();
@@ -34,4 +36,6 @@ public:
 
 	void PlayAttackMontange();
 	void JumpToAttackMontageSection(int32 NewSection);
+
+	void SetDeadAnim();
 };

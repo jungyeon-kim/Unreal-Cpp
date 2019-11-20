@@ -1,5 +1,6 @@
 #include "ABCharacter.h"
 #include "ABAnimInstance.h"
+#include "DrawDebugHelpers.h"
 
 AABCharacter::AABCharacter()
 {
@@ -22,13 +23,14 @@ AABCharacter::AABCharacter()
 	if (SK_CHARM_GOLDEN.Succeeded()) GetMesh()->SetSkeletalMesh(SK_CHARM_GOLDEN.Object);
 	if (WARRIOR_ANIM.Succeeded()) GetMesh()->SetAnimInstanceClass(WARRIOR_ANIM.Class);
 
-	SetControlMode(EControlMode::DIABLO);
+	SetControlMode(EControlMode::GTA);
 
 	ArmLengthSpeed = 3.0f;
 	ArmRotationSpeed = 10.0f;
 	GetCharacterMovement()->JumpZVelocity = 450.0f;
-
 	MaxCombo = 4;
+	AttackLength = 200.0f;
+	AttackRadius = 50.0f;
 }
 
 void AABCharacter::BeginPlay()
@@ -65,10 +67,11 @@ void AABCharacter::PostInitializeComponents()
 	ABAnim = Cast<UABAnimInstance>(GetMesh()->GetAnimInstance());
 	ABCHECK(ABAnim);
 	ABAnim->OnMontageEnded.AddDynamic(this, &AABCharacter::OnAttackMontageEnded);	// 멀티캐스트 다이나믹 델리게이트
+	ABAnim->OnAttackHitCheck.AddUObject(this, &AABCharacter::AttackCheck);
 	ABAnim->OnNextAttackCheck.AddLambda([&]()
 	{
-		CanNextCombo = false;
-		if (IsComboInputOn)
+		bCanNextCombo = false;
+		if (bIsComboInputOn)
 		{
 			AttackStartComboState();
 			ABAnim->JumpToAttackMontageSection(CurrentCombo);
@@ -88,6 +91,20 @@ void AABCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAxis(TEXT("LeftRight"), this, &AABCharacter::LeftRight);
 	PlayerInputComponent->BindAxis(TEXT("LookUp"), this, &AABCharacter::LookUp);
 	PlayerInputComponent->BindAxis(TEXT("Turn"), this, &AABCharacter::Turn);
+}
+
+float AABCharacter::TakeDamage(float DamageAmount, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	float FinalDamage{ Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser) };
+	ABLOG(Warning, TEXT("Actor : %s took Damage : %f"), *GetName(), FinalDamage);
+
+	if (FinalDamage > 0.0f)
+	{
+		ABAnim->SetDeadAnim();
+		SetActorEnableCollision(false);
+	}
+
+	return FinalDamage;
 }
 
 void AABCharacter::UpDown(float NewAxisValue)
@@ -153,10 +170,10 @@ void AABCharacter::ViewChange()
 
 void AABCharacter::Attack()
 {
-	if (IsAttacking)
+	if (bIsAttacking)
 	{
 		ABCHECK(FMath::IsWithinInclusive<int32>(CurrentCombo, 1, MaxCombo));
-		if (CanNextCombo) IsComboInputOn = true;
+		if (bCanNextCombo) bIsComboInputOn = true;
 	}
 	else
 	{
@@ -164,24 +181,24 @@ void AABCharacter::Attack()
 		AttackStartComboState();
 		ABAnim->PlayAttackMontange();
 		ABAnim->JumpToAttackMontageSection(CurrentCombo);
-		IsAttacking = true;
+		bIsAttacking = true;
 	}
 }
 
 // OnMontageEnded 딜리게이트에 바인딩
 void AABCharacter::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
-	ABCHECK(IsAttacking);
+	ABCHECK(bIsAttacking);
 	ABCHECK(CurrentCombo > 0);
-	IsAttacking = false;
+	bIsAttacking = false;
 	AttackEndComboState();
 }
 
 // 공격이 시작할 때 상태 세팅
 void AABCharacter::AttackStartComboState()
 {
-	CanNextCombo = true;
-	IsComboInputOn = false;
+	bCanNextCombo = true;
+	bIsComboInputOn = false;
 	ABCHECK(FMath::IsWithinInclusive<int32>(CurrentCombo, 0, MaxCombo - 1));
 	CurrentCombo = FMath::Clamp<int32>(CurrentCombo + 1, 1, MaxCombo);
 }
@@ -189,9 +206,43 @@ void AABCharacter::AttackStartComboState()
 // 공격이 끝날 때 상태 세팅
 void AABCharacter::AttackEndComboState()
 {
-	IsComboInputOn = false;
-	CanNextCombo = false;
+	bIsComboInputOn = false;
+	bCanNextCombo = false;
 	CurrentCombo = 0;
+}
+
+void AABCharacter::AttackCheck()
+{
+	FHitResult HitResult{};
+	FCollisionQueryParams Params{ NAME_None, false, this };
+	bool bResult = GetWorld()->SweepSingleByChannel(
+		HitResult,
+		GetActorLocation(),
+		GetActorLocation() + GetActorForwardVector() * AttackLength,
+		FQuat::Identity,
+		ECollisionChannel::ECC_GameTraceChannel2,
+		FCollisionShape::MakeSphere(AttackRadius),
+		Params);
+
+#if ENABLE_DRAW_DEBUG
+	FVector Trace{ GetActorForwardVector() * AttackLength };
+	FVector Center{ GetActorLocation() + Trace * 0.5f };
+	float HalfHeight{ AttackLength * 0.5f + AttackRadius };
+	FQuat CapsuleRot{ FRotationMatrix::MakeFromZ(Trace).ToQuat() };
+	FColor DrawColor{ bResult ? FColor::Green : FColor::Red };
+	float DebugLifeTime{ 5.0f };
+
+	DrawDebugCapsule(GetWorld(), Center, HalfHeight, AttackRadius, CapsuleRot, DrawColor, false, DebugLifeTime);
+#endif
+
+	if (bResult)
+		if (HitResult.Actor.IsValid())
+		{
+			ABLOG(Warning, TEXT("Hit Actor Name: %s"), *HitResult.Actor->GetName());
+			
+			FDamageEvent DamageEvent{};
+			HitResult.Actor->TakeDamage(50.0f, DamageEvent, GetController(), this);
+		}
 }
 
 void AABCharacter::SetControlMode(EControlMode NewControlMode)
