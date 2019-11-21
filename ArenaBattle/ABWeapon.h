@@ -11,7 +11,7 @@ class ARENABATTLE_API AABWeapon : public AActor
 protected:
 	virtual void BeginPlay() override;
 public:
-	UPROPERTY(VisibleAnywhere, Category = Weapon)
+	UPROPERTY(VisibleAnywhere, Category = "Weapon")
 	USkeletalMeshComponent* Weapon;
 public:	
 	AABWeapon();

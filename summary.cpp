@@ -47,22 +47,28 @@
 	TryGetPawnOwner():		일반적으로 Tick은 입력 -> 로직 -> 애니메이션 순이다.
 							로직에서 폰이 제거되었다면 애니메이션에서 폰을 참조할 때 유효하지않다.
 							따라서, 폰이 유효한지 검사하는 함수가 이것이다.
-	Cast<T>():				dynamic_cast와 유사
+	Cast<T>():				dynamic_cast와 유사 
+							내부에서 템플릿 인자를 *로 받기때문에 인자에 *을 써줄 필요가 없다.
 	TakeDamege():			액터에게 데미지를 전달 (세기, 종류, 가해자, 사용 도구)
 	SetActorEnableCollision():	액터의 충돌설정을 on / off
 	SetCollisionProfileName():	어떤 콜리전 프리셋을 사용할 것인지 지정한다.
 	SpawnActor<>():			월드에 액터를 생성한다.
 	AttachToComponent():	컴포넌트에 부착시킨다.
 	StaticClass():			런타임에 이 클래스를 나타내는 UClass 객체를 반환
+	SetVisibility():		컴포넌트의 시각적 기능을 세팅한다. (에디터, 게임플레이화면에서 모두 사라진다.)
+	SetHiddenInGame():		SetVisibility()와 같은 기능이나 게임플레이화면에서만 사라진다.
 
-	OnMontageEnded():		몽타주 재생이 끝나면 발동하는 델리게이트
-	OnComponentBeginOvelap():	Overlap 이벤트가 발생할 때마다 발동하는 델리게이트 (박스 컴포넌트에 존재)
+	OnMontageEnded:			몽타주 재생이 끝나면 발동하는 델리게이트 (애님인스턴스)
+	OnComponentBeginOvelap:	Overlap 이벤트가 발생할 때마다 발동하는 델리게이트 (박스 컴포넌트)
+	OnSystemFinished:		이펙트 재생이 종료되면 발동하는 델리게이트 (파티클 컴포넌트)
 
 	FClassFinder:			에디터에서 블루프린트 클래스를 가져올 때 사용하는 구조체
 	FObjectFinder:			에디터에서 리소스를 가져올 때 사용하는 구조체
 	FRotationMatrix:		회전된 좌표계 정보를 저장하는 행렬 클래스
-	TSubclassOf<>:			특정 클래스와 상속받은 클래스들로 선언 목록을 제한해주는 키워드
-							UCLASS는 모든 언리얼 오브젝트에 대한 선언이 보이기 때문에 사용
+	TSubclassOf<>:			특정 클래스와 상속받은 클래스들로 선언 목록을 제한해주는 클래스
+							UCLASS나 일반 Class는 모든 언리얼 오브젝트에 대한 선언이 보이기 때문에 사용
+							ex)	TSubclassOf<T>			->	T와 T를 상속받은 클래스만 보임
+								UClass* / class T*		->	모든 언리얼 오브젝트가 보임
 */
 
 

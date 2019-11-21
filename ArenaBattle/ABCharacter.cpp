@@ -39,9 +39,9 @@ void AABCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	auto CurWeapon{ GetWorld()->SpawnActor<AABWeapon>() };
-	if (CurWeapon) CurWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale,
-		TEXT("hand_rSocket"));
+	//auto CurWeapon{ GetWorld()->SpawnActor<AABWeapon>() };
+	//if (CurWeapon) CurWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale,
+	//	TEXT("hand_rSocket"));
 }
 
 void AABCharacter::Tick(float DeltaTime)
@@ -111,6 +111,23 @@ float AABCharacter::TakeDamage(float DamageAmount, const FDamageEvent& DamageEve
 	}
 
 	return FinalDamage;
+}
+
+bool AABCharacter::CanSetWeapon()
+{
+	return !CurrentWeapon;
+}
+
+void AABCharacter::SetWeapon(AABWeapon* NewWeapon)
+{
+	ABCHECK(NewWeapon && !CurrentWeapon);
+
+	if (NewWeapon)
+	{
+		NewWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale,
+			TEXT("hand_rSocket"));
+		CurrentWeapon = NewWeapon->StaticClass();
+	}
 }
 
 void AABCharacter::UpDown(float NewAxisValue)
