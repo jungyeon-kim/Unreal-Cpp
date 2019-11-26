@@ -1,5 +1,7 @@
 //	용어정리
 /*
+	GameMode:				게임의 규칙을 정하는 클래스
+	GameInstance:			게임 앱을 관리하는 클래스
 	Actor:					level에 배치할 수 있는 오브젝트
 	Component:				액터에 추가할 수 있는 함수성 조각
 							독립적으로 존재 불가 (액터에 종속)
@@ -14,8 +16,12 @@
 	★Delegate:				특정 객체가 수행해야할 로직을 다른 객체가 대신 처리해줄 수 있도록 만드는 개념
 							1. A 메서드를 B에 등록	2. B에게 명령	3. B가 명령을 실행	4. 1에서 등록한 함수 호출
 							블루프린트와도 연동되는 델리게이트 -> 다이나믹 델리게이트
+							AddDynamic:	언리얼 오브젝트기반 클래스의 메서드를 다이나믹 델리게이트에 등록
 							AddUObject:	언리얼 오브젝트기반 클래스의 메서드를 델리게이트에 등록
 							AddLambda:	람다 함수를 델리게이트에 등록
+	★Reflection:			프로그램이 런타임에 자기자신을 조사하는 기능
+							언리얼 엔진은 언리얼 오브젝트에 한해서 리플렉션이 된다.
+							에디터 디테일 패널, 가비지콜렉팅, 직렬화, BP & C++ 연동 등에 사용
 
 	Skeletal Mesh:			애니메이션 재생을 위해 리깅 데이터를 추가한 메시 (스켈레탈 메시 컴포넌트가 관리)
 	Rigging:				모델링된 데이터에 뼈를 붙이는 작업
@@ -62,11 +68,13 @@
 	OnComponentBeginOvelap:	Overlap 이벤트가 발생할 때마다 발동하는 델리게이트 (박스 컴포넌트)
 	OnSystemFinished:		이펙트 재생이 종료되면 발동하는 델리게이트 (파티클 컴포넌트)
 
+	FString:				FString 타입의 문자열 값을 가져오려면 앞에 *을 붙여야한다. (특이하지만 적응하자.)
 	FClassFinder:			에디터에서 블루프린트 클래스를 가져올 때 사용하는 구조체
 	FObjectFinder:			에디터에서 리소스를 가져올 때 사용하는 구조체
 	FRotationMatrix:		회전된 좌표계 정보를 저장하는 행렬 클래스
 	TSubclassOf<>:			특정 클래스와 상속받은 클래스들로 선언 목록을 제한해주는 클래스
-							UCLASS나 일반 Class는 모든 언리얼 오브젝트에 대한 선언이 보이기 때문에 사용
+							UCLASS와 일반 Class는 모든 언리얼 오브젝트에 대한 선언이 보이고,
+							일반 Class는 메모리할당 전에는 아무것도 보이지가 않기 때문에 사용
 							ex)	TSubclassOf<T>			->	T와 T를 상속받은 클래스만 보임
 								UClass* / class T*		->	모든 언리얼 오브젝트가 보임
 */
@@ -81,6 +89,10 @@
 							F:	언리얼 오브젝트와 관련없는 클래스나 구조체
 							b:	bool 변수
 
+	게임의 시작 과정:			게임 앱 초기화	-	레벨의 액터 초기화	-	플레이어 로그인	-	게임 시작
+							UGameInstace::		AActor::PostInitialize	AGameMode::			AGameMode::StartPlay()
+							Init()				Componets()				PostLogin()			AActor::BeginPlay()
+
 	UPROPERTY():			멤버변수를 default값으로 초기화하고 에디터에 노출시킴
 							사용자가 선언한 언리얼 오브젝트를 자동으로 관리해줌 (garbage collection)
 							언리얼 오브젝트가 아니라면, 직접 해제해주거나 스마트포인터를 사용해야함
@@ -92,6 +104,7 @@
 							AllowPrivateAccess:	private멤버가 블루프린트에 노출됨
 							BlueprintReadOnly:	블루프린트에서 읽기만 가능
 							BlueprintReadWrite:	블루프린트에서 읽기, 쓰기 둘다가능
+							Transient:			직렬화(오브젝트의 저장과 로드)에서 제외 -> 휘발성
 	UFUNCTION()				멤버함수를 에디터에 노출시킴
 							C++멤버함수를 블루프린트에서 호출, 오버라이드를 가능하게함
 	UCLASS():				해당 클래스가 언리얼 오브젝트임을 바깥쪽에 명시

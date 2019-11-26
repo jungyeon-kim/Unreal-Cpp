@@ -31,17 +31,17 @@ AABItemBox::AABItemBox()
 	Box->SetCollisionProfileName(TEXT("NoCollision"));
 }
 
-void AABItemBox::BeginPlay()
-{
-	Super::BeginPlay();
-}
-
 void AABItemBox::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 
 	Trigger->OnComponentBeginOverlap.AddDynamic(this, &AABItemBox::OnCharacterOverlap);
 	Effect->OnSystemFinished.AddDynamic(this, &AABItemBox::OnEffectFinished);
+}
+
+void AABItemBox::BeginPlay()
+{
+	Super::BeginPlay();
 }
 
 void AABItemBox::Tick(float DeltaTime)

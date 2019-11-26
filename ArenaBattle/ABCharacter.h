@@ -61,8 +61,10 @@ public:
 	USpringArmComponent* SpringArm;
 	UPROPERTY(VisibleAnywhere, Category = "Camera")
 	UCameraComponent* Camera;
+	UPROPERTY(VisibleAnywhere, Category = "Stat")
+	class UABCharacterStatComponent* CharacterStat;
 	UPROPERTY(VisibleAnywhere, Category = "Weapon")
-	TSubclassOf<class AABWeapon> CurrentWeapon;
+	class AABWeapon* CurrentWeapon;
 public:
 	AABCharacter();
 

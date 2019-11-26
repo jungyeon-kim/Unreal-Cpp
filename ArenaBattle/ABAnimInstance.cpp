@@ -51,5 +51,5 @@ FName UABAnimInstance::GetAttackMontageSectionName(int32 Section)
 {
 	ABCHECK(FMath::IsWithinInclusive(Section, 1, 4), NAME_None);
 	
-	return static_cast<FName>(*FString::Printf(TEXT("Attack%d"), Section));
+	return *FString::Printf(TEXT("Attack%d"), Section);
 }

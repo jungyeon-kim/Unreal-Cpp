@@ -8,5 +8,5 @@ DECLARE_LOG_CATEGORY_EXTERN(ArenaBattle, Log, All);
 #define ABLOG_S(Verbosity) UE_LOG(ArenaBattle, Verbosity, TEXT("%s"), *ABLOG_CALLINFO)
 // 출력 로그 (문자열은 *이 붙어야합니다.)
 #define ABLOG(Verbosity, Format, ...) UE_LOG(ArenaBattle, Verbosity, TEXT("%s %s"), *ABLOG_CALLINFO, *FString::Printf(Format, ##__VA_ARGS__))
-// 조건이 참이 아닌경우 붉은 로그를 띄우고 리턴합니다.
+// 조건이 참이 아닌경우 붉은 로그를 띄우고 리턴합니다. 반환 값이 있는 함수에서는 두번째인자로 반환값을 부여해야합니다.
 #define ABCHECK(Expr, ...) { if(!(Expr)) { ABLOG(Error, TEXT("ASSERTION : %s"), TEXT("'"#Expr"'")); return __VA_ARGS__; } }

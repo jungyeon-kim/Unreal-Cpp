@@ -1,5 +1,6 @@
 #include "ABCharacter.h"
 #include "ABAnimInstance.h"
+#include "ABCharacterStatComponent.h"
 #include "ABWeapon.h"
 #include "DrawDebugHelpers.h"
 
@@ -9,6 +10,7 @@ AABCharacter::AABCharacter()
 
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SPRINGARM"));
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("CAMERA"));
+	CharacterStat = CreateDefaultSubobject<UABCharacterStatComponent>(TEXT("CHARACTERSTAT"));
 
 	RootComponent = GetCapsuleComponent();
 	SpringArm->SetupAttachment(GetCapsuleComponent());
@@ -33,6 +35,30 @@ AABCharacter::AABCharacter()
 	MaxCombo = 4;
 	AttackLength = 200.0f;
 	AttackRadius = 50.0f;
+}
+
+void AABCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	ABAnim = Cast<UABAnimInstance>(GetMesh()->GetAnimInstance());
+	ABCHECK(ABAnim);
+	ABAnim->OnMontageEnded.AddDynamic(this, &AABCharacter::OnAttackMontageEnded);	// 멀티캐스트 다이나믹 델리게이트
+	ABAnim->OnAttackHitCheck.AddUObject(this, &AABCharacter::AttackCheck);
+	ABAnim->OnNextAttackCheck.AddLambda([&]()
+	{
+		bCanNextCombo = false;
+		if (bIsComboInputOn)
+		{
+			AttackStartComboState();
+			ABAnim->JumpToAttackMontageSection(CurrentCombo);
+		}
+	});
+	CharacterStat->OnHPIsZero.AddLambda([&]()
+	{
+		ABAnim->SetDeadAnim();
+		SetActorEnableCollision(false);
+	});
 }
 
 void AABCharacter::BeginPlay()
@@ -66,25 +92,6 @@ void AABCharacter::Tick(float DeltaTime)
 	}
 }
 
-void AABCharacter::PostInitializeComponents()
-{
-	Super::PostInitializeComponents();
-
-	ABAnim = Cast<UABAnimInstance>(GetMesh()->GetAnimInstance());
-	ABCHECK(ABAnim);
-	ABAnim->OnMontageEnded.AddDynamic(this, &AABCharacter::OnAttackMontageEnded);	// 멀티캐스트 다이나믹 델리게이트
-	ABAnim->OnAttackHitCheck.AddUObject(this, &AABCharacter::AttackCheck);
-	ABAnim->OnNextAttackCheck.AddLambda([&]()
-	{
-		bCanNextCombo = false;
-		if (bIsComboInputOn)
-		{
-			AttackStartComboState();
-			ABAnim->JumpToAttackMontageSection(CurrentCombo);
-		}
-	});
-}
-
 void AABCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -104,11 +111,7 @@ float AABCharacter::TakeDamage(float DamageAmount, const FDamageEvent& DamageEve
 	float FinalDamage{ Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser) };
 	ABLOG(Warning, TEXT("Actor : %s took Damage : %f"), *GetName(), FinalDamage);
 
-	if (FinalDamage > 0.0f)
-	{
-		ABAnim->SetDeadAnim();
-		SetActorEnableCollision(false);
-	}
+	CharacterStat->SetDamage(FinalDamage);
 
 	return FinalDamage;
 }
@@ -126,7 +129,8 @@ void AABCharacter::SetWeapon(AABWeapon* NewWeapon)
 	{
 		NewWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale,
 			TEXT("hand_rSocket"));
-		CurrentWeapon = NewWeapon->StaticClass();
+		//CurrentWeapon = NewWeapon->StaticClass();
+		CurrentWeapon = NewWeapon;
 	}
 }
 
@@ -264,7 +268,7 @@ void AABCharacter::AttackCheck()
 			ABLOG(Warning, TEXT("Hit Actor Name: %s"), *HitResult.Actor->GetName());
 			
 			FDamageEvent DamageEvent{};
-			HitResult.Actor->TakeDamage(50.0f, DamageEvent, GetController(), this);
+			HitResult.Actor->TakeDamage(CharacterStat->GetAttack(), DamageEvent, GetController(), this);
 		}
 }
 

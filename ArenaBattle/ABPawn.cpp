@@ -28,6 +28,13 @@ AABPawn::AABPawn()
 	if (WARRIOR_ANIM.Succeeded()) Mesh->SetAnimInstanceClass(WARRIOR_ANIM.Class);
 }
 
+void AABPawn::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	//ABLOG_S(Warning);
+}
+
 void AABPawn::BeginPlay()
 {
 	Super::BeginPlay();
@@ -36,13 +43,6 @@ void AABPawn::BeginPlay()
 void AABPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-}
-
-void AABPawn::PostInitializeComponents()
-{
-	Super::PostInitializeComponents();
-
-	//ABLOG_S(Warning);
 }
 
 void AABPawn::PossessedBy(AController* NewController)
