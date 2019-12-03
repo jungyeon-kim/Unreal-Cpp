@@ -19,9 +19,10 @@
 							AddDynamic:	언리얼 오브젝트기반 클래스의 메서드를 다이나믹 델리게이트에 등록
 							AddUObject:	언리얼 오브젝트기반 클래스의 메서드를 델리게이트에 등록
 							AddLambda:	람다 함수를 델리게이트에 등록
-	★Reflection:			프로그램이 런타임에 자기자신을 조사하는 기능
-							언리얼 엔진은 언리얼 오브젝트에 한해서 리플렉션이 된다.
+	★Reflection:			객체 정보를 런타임에서 실시간으로 조회가 가능하게하는 기능
 							에디터 디테일 패널, 가비지콜렉팅, 직렬화, BP & C++ 연동 등에 사용
+	★Serialization:			객체를 일련의 문자나 숫자로 변환하는 것
+							언리얼 엔진에 객체를 저장 & 로드하기 위함
 
 	Skeletal Mesh:			애니메이션 재생을 위해 리깅 데이터를 추가한 메시 (스켈레탈 메시 컴포넌트가 관리)
 	Rigging:				모델링된 데이터에 뼈를 붙이는 작업
@@ -47,6 +48,7 @@
 /*
 	CreateDefaultSubobject():	컴포넌트를 생성하는 용도로 new 키워드 대신 사용
 								컴포넌트 구별을 위해 매개변수로 문자열을 받음 (Hash값 생성에 사용하며, 중복되면 안됨)
+	SpawnActor<>():			월드에 액터를 생성한다.
 	TEXT():					모든 플랫폼에서 2byte 문자열 체계(유니코드)를 유지시켜주는 매크로
 	SetupAttachment():		해당 컴포넌트를 매개변수의 자식으로 설정
 	SetRelativeLocation():	부모를 기준으로 컴포넌트의 위치를 설정
@@ -54,11 +56,10 @@
 							로직에서 폰이 제거되었다면 애니메이션에서 폰을 참조할 때 유효하지않다.
 							따라서, 폰이 유효한지 검사하는 함수가 이것이다.
 	Cast<T>():				dynamic_cast와 유사 
-							내부에서 템플릿 인자를 *로 받기때문에 인자에 *을 써줄 필요가 없다.
+							내부에서 템플릿 인자를 포인터로 받기때문에 인자에 *을 써줄 필요가 없다.
 	TakeDamege():			액터에게 데미지를 전달 (세기, 종류, 가해자, 사용 도구)
 	SetActorEnableCollision():	액터의 충돌설정을 on / off
 	SetCollisionProfileName():	어떤 콜리전 프리셋을 사용할 것인지 지정한다.
-	SpawnActor<>():			월드에 액터를 생성한다.
 	AttachToComponent():	컴포넌트에 부착시킨다.
 	StaticClass():			런타임에 이 클래스를 나타내는 UClass 객체를 반환
 	SetVisibility():		컴포넌트의 시각적 기능을 세팅한다. (에디터, 게임플레이화면에서 모두 사라진다.)
@@ -89,6 +90,14 @@
 							F:	언리얼 오브젝트와 관련없는 클래스나 구조체
 							b:	bool 변수
 
+	언리얼 오브젝트:			1. CDO(Class Default Object): 객체의 초기 값을 자체적으로 관리
+							2. Reflection: 객체 정보를 런타임에서 실시간 조회가 가능
+							3. GC(Garbage Collection): 참조되지 않는 객체를 메모리에서 자동 해제 가능
+							4. Serialization: 객체와 속성 정보를 통으로 안전하게 보관하고 로딩
+							5. Delegate: 함수를 묶어서 효과적으로 관리하고 호출 가능
+							6. Replication: 네트워크 상에서 객체간에 동기화 가능
+							7. Editor Integration: 언리얼 에디터 인터페이스를 통해 값을 편집 가능
+
 	게임의 시작 과정:			게임 앱 초기화	-	레벨의 액터 초기화	-	플레이어 로그인	-	게임 시작
 							UGameInstace::		AActor::PostInitialize	AGameMode::			AGameMode::StartPlay()
 							Init()				Componets()				PostLogin()			AActor::BeginPlay()
@@ -96,20 +105,20 @@
 	UPROPERTY():			멤버변수를 default값으로 초기화하고 에디터에 노출시킴
 							사용자가 선언한 언리얼 오브젝트를 자동으로 관리해줌 (garbage collection)
 							언리얼 오브젝트가 아니라면, 직접 해제해주거나 스마트포인터를 사용해야함
-							VisibleAnywhere:	어디서든 읽기작업 가능
-							EditAnywhere:		어디서든 읽기, 쓰기작업 가능
-							*DefaultsOnly:		블루프린트 편집화면에서만
-							*InstanceOnly:		에디터 뷰포트에서만
+							VisibleAnywhere:	어디서든 읽기작업 가능 (디테일 패널)
+							EditAnywhere:		어디서든 읽기, 쓰기작업 가능 (디테일 패널)
+							BlueprintReadOnly:	블루프린트에서 읽기만 가능 (BP 그래프)
+							BlueprintReadWrite:	블루프린트에서 읽기, 쓰기 둘다가능 (BP 그래프)
+							*DefaultsOnly:		블루프린트 편집화면에서만 (디테일 패널)
+							*InstanceOnly:		에디터 뷰포트에서만 (디테일 패널)
 							Category:			지정한 분류에서 멤버를 관리 가능
 							AllowPrivateAccess:	private멤버가 블루프린트에 노출됨
-							BlueprintReadOnly:	블루프린트에서 읽기만 가능
-							BlueprintReadWrite:	블루프린트에서 읽기, 쓰기 둘다가능
-							Transient:			직렬화(오브젝트의 저장과 로드)에서 제외 -> 휘발성
+							Transient:			직렬화에서 제외 -> 휘발성 멤버변수
 	UFUNCTION()				멤버함수를 에디터에 노출시킴
 							C++멤버함수를 블루프린트에서 호출, 오버라이드를 가능하게함
 	UCLASS():				해당 클래스가 언리얼 오브젝트임을 바깥쪽에 명시
 	GENERATED_BODY():		해당 클래스가 언리얼 오브젝트임을 안쪽에 명시
-	generated.h:			언리얼 헤더 툴에 의해 자동으로 생성되는 부가파일. 꼭 include 해주어야 함
+	generated.h:			언리얼 헤더 툴(UHT)에 의해 자동으로 생성되는 부가파일. 꼭 include 해주어야 함
 	모듈명_API:				DLL 내 클래스 정보를 외부에 공개할지 결정하는 _declspec(dllexport) 키워드를 사용하기위해 명시
 
 	~키 명령어)			

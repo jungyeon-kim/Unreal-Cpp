@@ -3,6 +3,8 @@
 #include "ABCharacterStatComponent.h"
 #include "ABWeapon.h"
 #include "DrawDebugHelpers.h"
+#include "Components/WidgetComponent.h"
+#include "ABCharacterWidget.h"
 
 AABCharacter::AABCharacter()
 {
@@ -10,21 +12,31 @@ AABCharacter::AABCharacter()
 
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SPRINGARM"));
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("CAMERA"));
+	HPBarWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("HPBARWIDGET"));
 	CharacterStat = CreateDefaultSubobject<UABCharacterStatComponent>(TEXT("CHARACTERSTAT"));
 
 	RootComponent = GetCapsuleComponent();
 	SpringArm->SetupAttachment(GetCapsuleComponent());
 	Camera->SetupAttachment(SpringArm);
+	HPBarWidget->SetupAttachment(GetMesh());
 
 	GetMesh()->SetRelativeLocationAndRotation({ 0.0f, 0.0f, -88.0f }, { 0.0f, -90.0f, 0.0f });
 	SpringArm->SetRelativeRotation({ -15.0f, 0.0f, 0.0f });
 	SpringArm->TargetArmLength = 400.0f;
+	HPBarWidget->SetRelativeLocation({ 0.0f, 0.0f, 180.0f });
+	HPBarWidget->SetWidgetSpace(EWidgetSpace::Screen);
 
 	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> SK_CHARM_GOLDEN{ TEXT("/Game/InfinityBladeWarriors/Character/CompleteCharacters/SK_CharM_Golden.SK_CharM_Golden") };
 	static ConstructorHelpers::FClassFinder<UAnimInstance> WARRIOR_ANIM{ TEXT("/Game/Book/Animation/WarriorAnimBlueprint.WarriorAnimBlueprint_C") };
+	static ConstructorHelpers::FClassFinder<UUserWidget> UI_HUD(TEXT("/Game/Book/UI/UI_HPBar.UI_HPBar_C"));
 	if (SK_CHARM_GOLDEN.Succeeded()) GetMesh()->SetSkeletalMesh(SK_CHARM_GOLDEN.Object);
 	if (WARRIOR_ANIM.Succeeded()) GetMesh()->SetAnimInstanceClass(WARRIOR_ANIM.Class);
+	if (UI_HUD.Succeeded())
+	{
+		HPBarWidget->SetWidgetClass(UI_HUD.Class);
+		HPBarWidget->SetDrawSize({ 150.0f, 50.0f });
+	}
 
 	SetControlMode(EControlMode::GTA);
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("ABCharacter"));	// 콜리전 프리셋 변경
@@ -68,6 +80,11 @@ void AABCharacter::BeginPlay()
 	//auto CurWeapon{ GetWorld()->SpawnActor<AABWeapon>() };
 	//if (CurWeapon) CurWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale,
 	//	TEXT("hand_rSocket"));
+
+	// UI 시스템은 플레이어 컨트롤러의 BeginPlay()에서 생성된다.
+	// 따라서, 이 클래스의 PostInitializeComponents()은 위젯 생성에 효능이 없어 BeginPlay()에서 작업해준다.
+	const auto& CharacterWidget{ Cast<UABCharacterWidget>(HPBarWidget->GetUserWidgetObject()) };
+	if (CharacterWidget) CharacterWidget->BindCharacterStat(CharacterStat);
 }
 
 void AABCharacter::Tick(float DeltaTime)
@@ -129,7 +146,6 @@ void AABCharacter::SetWeapon(AABWeapon* NewWeapon)
 	{
 		NewWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale,
 			TEXT("hand_rSocket"));
-		//CurrentWeapon = NewWeapon->StaticClass();
 		CurrentWeapon = NewWeapon;
 	}
 }

@@ -35,7 +35,7 @@ void UABCharacterStatComponent::SetNewLevel(int32 NewLevel)
 	if (CurrentStatData)
 	{
 		Level = NewLevel;
-		CurrentHP = CurrentStatData->MaxHP;
+		SetHP(CurrentStatData->MaxHP);
 	}
 	else ABLOG(Error, TEXT("Level (%d) data doesn't exist"), NewLevel);
 }
@@ -44,13 +44,30 @@ void UABCharacterStatComponent::SetDamage(float NewDamage)
 {
 	ABCHECK(CurrentStatData);
 
-	CurrentHP = FMath::Clamp<float>(CurrentHP - NewDamage, 0.0f, CurrentStatData->MaxHP);
-	if (CurrentHP <= 0.0f) OnHPIsZero.Broadcast();
+	SetHP(FMath::Clamp<float>(CurrentHP - NewDamage, 0.0f, CurrentStatData->MaxHP));
 }
 
-float UABCharacterStatComponent::GetAttack()
+void UABCharacterStatComponent::SetHP(float NewHP)
+{
+	CurrentHP = NewHP;
+	OnHPChanged.Broadcast();
+	if (CurrentHP <= 0.0f)
+	{
+		CurrentHP = 0.0f;
+		OnHPIsZero.Broadcast();
+	}
+}
+
+float UABCharacterStatComponent::GetAttack() const
 {
 	ABCHECK(CurrentStatData, 0.0f);
 
 	return CurrentStatData->Attack;
+}
+
+float UABCharacterStatComponent::GetHPRatio() const
+{
+	ABCHECK(CurrentStatData, 0.0f);
+
+	return (CurrentStatData->MaxHP <= 0.0f) ? 0.0f : (CurrentHP / CurrentStatData->MaxHP);
 }
