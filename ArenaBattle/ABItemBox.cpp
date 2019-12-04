@@ -18,8 +18,8 @@ AABItemBox::AABItemBox()
 	Trigger->SetBoxExtent({ 40.0f, 42.0f, 30.0f });
 	Box->SetRelativeLocation({ 0.0f, -3.5f, -30.0f });
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> SM_BOX(TEXT("/Game/InfinityBladeGrassLands/Environments/Breakables/StaticMesh/Box/SM_Env_Breakables_Box1.SM_Env_Breakables_Box1"));
-	static ConstructorHelpers::FObjectFinder<UParticleSystem> P_CHESTOPEN(TEXT("/Game/InfinityBladeGrassLands/Effects/FX_Treasure/Chest/P_TreasureChest_Open_Mesh.P_TreasureChest_Open_Mesh"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> SM_BOX{ TEXT("/Game/InfinityBladeGrassLands/Environments/Breakables/StaticMesh/Box/SM_Env_Breakables_Box1.SM_Env_Breakables_Box1") };
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> P_CHESTOPEN{ TEXT("/Game/InfinityBladeGrassLands/Effects/FX_Treasure/Chest/P_TreasureChest_Open_Mesh.P_TreasureChest_Open_Mesh") };
 	if (SM_BOX.Succeeded()) Box->SetStaticMesh(SM_BOX.Object);
 	if (P_CHESTOPEN.Succeeded())
 	{

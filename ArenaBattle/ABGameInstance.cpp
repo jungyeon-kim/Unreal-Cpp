@@ -2,7 +2,7 @@
 
 UABGameInstance::UABGameInstance()
 {
-	static ConstructorHelpers::FObjectFinder<UDataTable> DT_ABCHARACTER(TEXT("/Game/Book/GameData/ABCharacterData.ABCharacterData"));
+	static ConstructorHelpers::FObjectFinder<UDataTable> DT_ABCHARACTER{ TEXT("/Game/Book/GameData/ABCharacterData.ABCharacterData") };
 	if (DT_ABCHARACTER.Succeeded()) ABCharacterTable = DT_ABCHARACTER.Object;
 }
 

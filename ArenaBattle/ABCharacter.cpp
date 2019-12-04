@@ -5,6 +5,7 @@
 #include "DrawDebugHelpers.h"
 #include "Components/WidgetComponent.h"
 #include "ABCharacterWidget.h"
+#include "ABAIController.h"
 
 AABCharacter::AABCharacter()
 {
@@ -14,6 +15,8 @@ AABCharacter::AABCharacter()
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("CAMERA"));
 	HPBarWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("HPBARWIDGET"));
 	CharacterStat = CreateDefaultSubobject<UABCharacterStatComponent>(TEXT("CHARACTERSTAT"));
+	AIControllerClass = AABAIController::StaticClass();
+	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
 	RootComponent = GetCapsuleComponent();
 	SpringArm->SetupAttachment(GetCapsuleComponent());
@@ -29,7 +32,7 @@ AABCharacter::AABCharacter()
 	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> SK_CHARM_GOLDEN{ TEXT("/Game/InfinityBladeWarriors/Character/CompleteCharacters/SK_CharM_Golden.SK_CharM_Golden") };
 	static ConstructorHelpers::FClassFinder<UAnimInstance> WARRIOR_ANIM{ TEXT("/Game/Book/Animation/WarriorAnimBlueprint.WarriorAnimBlueprint_C") };
-	static ConstructorHelpers::FClassFinder<UUserWidget> UI_HUD(TEXT("/Game/Book/UI/UI_HPBar.UI_HPBar_C"));
+	static ConstructorHelpers::FClassFinder<UUserWidget> UI_HUD{ TEXT("/Game/Book/UI/UI_HPBar.UI_HPBar_C" });
 	if (SK_CHARM_GOLDEN.Succeeded()) GetMesh()->SetSkeletalMesh(SK_CHARM_GOLDEN.Object);
 	if (WARRIOR_ANIM.Succeeded()) GetMesh()->SetAnimInstanceClass(WARRIOR_ANIM.Class);
 	if (UI_HUD.Succeeded())
@@ -82,7 +85,7 @@ void AABCharacter::BeginPlay()
 	//	TEXT("hand_rSocket"));
 
 	// UI 시스템은 플레이어 컨트롤러의 BeginPlay()에서 생성된다.
-	// 따라서, 이 클래스의 PostInitializeComponents()은 위젯 생성에 효능이 없어 BeginPlay()에서 작업해준다.
+	// 따라서, 이 클래스의 생성자나 PostInitializeComponents()에서는 위젯 생성에 효능이 없어 BeginPlay()에서 작업해준다.
 	const auto& CharacterWidget{ Cast<UABCharacterWidget>(HPBarWidget->GetUserWidgetObject()) };
 	if (CharacterWidget) CharacterWidget->BindCharacterStat(CharacterStat);
 }
