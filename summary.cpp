@@ -49,6 +49,7 @@
 										자손 노드중 하나가 실행에 실패하면 자손의 실행을 멈춘다.
 							Simple Parallel:	자손 노드를 순차적이 아닌 한번에 실행
 	Service Node:			컴포짓 노드에 부착되는 서브노드
+	Decorator Node:			블랙보드 값을 기반으로 특정 컴포짓 노드의 실행여부를 결정
 	Task Node:				행동. 독립적으로 실행이 불가하며 컴포짓 노드를 거쳐야한다.
 */
 
@@ -130,6 +131,7 @@
 	generated.h:			언리얼 헤더 툴(UHT)에 의해 자동으로 생성되는 부가파일. 꼭 include 해주어야 함
 	모듈명_API:				DLL 내 클래스 정보를 외부에 공개할지 결정하는 _declspec(dllexport) 키워드를 사용하기위해 명시
 
-	~키 명령어)			
+	Tip)			
 	displayall PlayerController ControlRotation:		플레이어 컨트롤러의 회전값 확인
+	Config -> DefaultEngine.ini에서 트레이스 채널 확인 가능
 */

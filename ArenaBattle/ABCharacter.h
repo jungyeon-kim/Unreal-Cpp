@@ -44,7 +44,7 @@ private:
 protected:
 	enum class EControlMode
 	{
-		GTA, DIABLO
+		GTA, DIABLO, NPC
 	};
 protected:
 	float ArmLengthTo{};
@@ -75,6 +75,7 @@ public:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 	virtual float TakeDamage(float DamageAmount, const FDamageEvent& DamageEvent,
 		AController* EventInstigator, AActor* DamageCauser) override;
+	virtual void PossessedBy(AController* NewController) override;
 
 	bool CanSetWeapon();
 	void SetWeapon(class AABWeapon* NewWeapon);

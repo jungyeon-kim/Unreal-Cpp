@@ -136,6 +136,22 @@ float AABCharacter::TakeDamage(float DamageAmount, const FDamageEvent& DamageEve
 	return FinalDamage;
 }
 
+void AABCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	if (IsPlayerControlled())
+	{
+		SetControlMode(EControlMode::GTA);
+		GetCharacterMovement()->MaxWalkSpeed = 600.0f;
+	}
+	else
+	{
+		SetControlMode(EControlMode::NPC);
+		GetCharacterMovement()->MaxWalkSpeed = 300.0f;
+	}
+}
+
 bool AABCharacter::CanSetWeapon()
 {
 	return !CurrentWeapon;
@@ -325,6 +341,13 @@ void AABCharacter::SetControlMode(EControlMode NewControlMode)
 		GetCharacterMovement()->bOrientRotationToMovement = false;
 		GetCharacterMovement()->bUseControllerDesiredRotation = true;
 		GetCharacterMovement()->RotationRate = { 0.0f, 720.0f, 0.0f };
+		break;
+	case EControlMode::NPC:
+
+		SpringArm->bInheritYaw = false;
+		GetCharacterMovement()->bOrientRotationToMovement = true;
+		GetCharacterMovement()->bUseControllerDesiredRotation = false;
+		GetCharacterMovement()->RotationRate = { 0.0f, 480.0f, 0.0f };
 		break;
 	}
 }

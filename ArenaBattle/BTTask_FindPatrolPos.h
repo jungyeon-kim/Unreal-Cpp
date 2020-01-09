@@ -1,6 +1,6 @@
 #pragma once
 
-#include "CoreMinimal.h"
+#include "ArenaBattle.h"
 #include "BehaviorTree/BTTaskNode.h"
 #include "BTTask_FindPatrolPos.generated.h"
 
