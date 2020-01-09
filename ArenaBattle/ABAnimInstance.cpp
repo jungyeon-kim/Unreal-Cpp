@@ -10,7 +10,7 @@ void UABAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
 
-	const auto& Pawn{ TryGetPawnOwner() };	// 폰이 유효한지 검사
+	const auto& Pawn{ TryGetPawnOwner() };		// 폰이 유효한지 검사
 	if (IsValid(Pawn) && !bIsDead)
 	{
 		CurrentPawnSpeed = Pawn->GetVelocity().Size();

@@ -14,8 +14,8 @@ private:
 	UPROPERTY()
 	class UBehaviorTree* BTAsset;
 public:
-	FName HomePosKey{};
-	FName PatrolPosKey{};
+	static const FName HomePosKey;
+	static const FName PatrolPosKey;
 public:
 	AABAIController();
 	virtual void OnPossess(APawn* InPawn) override;
