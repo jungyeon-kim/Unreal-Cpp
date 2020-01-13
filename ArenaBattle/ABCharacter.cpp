@@ -254,6 +254,7 @@ void AABCharacter::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted
 	ABCHECK(CurrentCombo > 0);
 	bIsAttacking = false;
 	AttackEndComboState();
+	OnAttackEnded.Broadcast();
 }
 
 // 공격이 시작할 때 상태 세팅

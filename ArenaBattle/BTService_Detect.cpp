@@ -19,7 +19,7 @@ void UBTService_Detect::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 
 	const auto& World{ ControllingPawn->GetWorld() };
 	FVector Center{ ControllingPawn->GetActorLocation() };
-	float DetectRadius{ 300.0f };
+	float DetectRadius{ 400.0f };
 	if (!World) return;
 
 	TArray<FOverlapResult> OverlapResults{};
@@ -47,11 +47,16 @@ void UBTService_Detect::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 					return;
 				}
 				else
+				{
 					OwnerComp.GetBlackboardComponent()->SetValueAsObject(AABAIController::TargetKey, nullptr);
+					DrawDebugSphere(World, Center, DetectRadius, 16, FColor::Red, false, 0.2f);
+				}
 			}
 		}
 	else
+	{
 		OwnerComp.GetBlackboardComponent()->SetValueAsObject(AABAIController::TargetKey, nullptr);
+		DrawDebugSphere(World, Center, DetectRadius, 16, FColor::Red, false, 0.2f);
+	}
 
-	DrawDebugSphere(World, Center, DetectRadius, 16, FColor::Red, false, 0.2f);
 }
