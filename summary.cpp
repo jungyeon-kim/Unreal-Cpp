@@ -89,6 +89,7 @@
 							ex)	TSubclassOf<T>			->	T와 T를 상속받은 클래스만 보임
 								UClass* / class T*		->	모든 언리얼 오브젝트가 보임
 	InterpTo():				시작부터 끝까지 타겟을 부드럽게 보간해주면서 변형시킴
+	MakeFrom*():			*방향으로의 회전값을 리턴
 */
 
 
