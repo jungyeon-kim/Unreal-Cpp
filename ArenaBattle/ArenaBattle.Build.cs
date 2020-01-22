@@ -9,7 +9,8 @@ public class ArenaBattle : ModuleRules
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
 		PublicDependencyModuleNames.AddRange(new string[] {
-            "Core", "CoreUObject", "Engine", "InputCore", "UMG", "AIModule", "GameplayTasks", "NavigationSystem"
+            "Core", "CoreUObject", "Engine", "InputCore", "UMG", "AIModule", "GameplayTasks", "NavigationSystem",
+            "ArenaBattleSetting"
         });
 
         PrivateDependencyModuleNames.AddRange(new string[] {  });

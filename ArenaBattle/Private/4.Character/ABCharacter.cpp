@@ -4,6 +4,7 @@
 #include "ABCharacterStatComponent.h"
 #include "ABAnimInstance.h"
 #include "ABCharacterWidget.h"
+#include "ABCharacterSetting.h"
 #include "DrawDebugHelpers.h"
 #include "Components/WidgetComponent.h"
 
