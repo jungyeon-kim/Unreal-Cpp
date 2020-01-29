@@ -1,4 +1,5 @@
 #include "ABCharacter.h"
+#include "ABPlayerController.h"
 #include "ABAIController.h"
 #include "ABWeapon.h"
 #include "ABCharacterStatComponent.h"
@@ -42,7 +43,6 @@ AABCharacter::AABCharacter()
 		HPBarWidget->SetDrawSize({ 150.0f, 50.0f });
 	}
 
-	SetControlMode(EControlMode::GTA);
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("ABCharacter"));	// 콜리전 프리셋 변경
 
 	ArmLengthSpeed = 3.0f;
@@ -51,6 +51,13 @@ AABCharacter::AABCharacter()
 	MaxCombo = 4;
 	AttackLength = 200.0f;
 	AttackRadius = 50.0f;
+
+	SetActorHiddenInGame(true);
+	HPBarWidget->SetHiddenInGame(true);
+	bCanBeDamaged = false;
+	SetCharacterState(ECharacterState::LOADING);
+
+	DeadTimer = 5.0f;
 }
 
 void AABCharacter::PostInitializeComponents()
@@ -70,11 +77,6 @@ void AABCharacter::PostInitializeComponents()
 			ABAnim->JumpToAttackMontageSection(CurrentCombo);
 		}
 	});
-	CharacterStat->OnHPIsZero.AddLambda([&]()
-	{
-		ABAnim->SetDeadAnim();
-		SetActorEnableCollision(false);
-	});
 }
 
 void AABCharacter::BeginPlay()
@@ -85,10 +87,21 @@ void AABCharacter::BeginPlay()
 	//if (CurWeapon) CurWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale,
 	//	TEXT("hand_rSocket"));
 
+	bIsPlayer = IsPlayerControlled();
+
+	if (bIsPlayer)
+	{
+		ABPlayerController = Cast<AABPlayerController>(GetController());
+	}
+	else
+	{
+		ABAIController = Cast<AABAIController>(GetController());
+	}
+
+	SetCharacterState(ECharacterState::READY);
+
 	// UI 시스템은 플레이어 컨트롤러의 BeginPlay()에서 생성된다.
 	// 따라서, 이 클래스의 생성자나 PostInitializeComponents()에서는 위젯 생성에 효능이 없어 BeginPlay()에서 작업해준다.
-	const auto& CharacterWidget{ Cast<UABCharacterWidget>(HPBarWidget->GetUserWidgetObject()) };
-	if (CharacterWidget) CharacterWidget->BindCharacterStat(CharacterStat);
 }
 
 void AABCharacter::Tick(float DeltaTime)
@@ -140,17 +153,6 @@ float AABCharacter::TakeDamage(float DamageAmount, const FDamageEvent& DamageEve
 void AABCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
-
-	if (IsPlayerControlled())
-	{
-		SetControlMode(EControlMode::GTA);
-		GetCharacterMovement()->MaxWalkSpeed = 600.0f;
-	}
-	else
-	{
-		SetControlMode(EControlMode::NPC);
-		GetCharacterMovement()->MaxWalkSpeed = 300.0f;
-	}
 }
 
 bool AABCharacter::CanSetWeapon()
@@ -167,6 +169,77 @@ void AABCharacter::SetWeapon(AABWeapon* NewWeapon)
 		NewWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale,
 			TEXT("hand_rSocket"));
 		CurrentWeapon = NewWeapon;
+	}
+}
+
+ECharacterState AABCharacter::GetCharacterState() const
+{
+	return CurrentState;
+}
+
+void AABCharacter::SetCharacterState(ECharacterState NewState)
+{
+	CurrentState = NewState;
+
+	switch (CurrentState)
+	{
+	case ECharacterState::LOADING:
+	{
+		SetActorHiddenInGame(true);
+		HPBarWidget->SetHiddenInGame(true);
+		bCanBeDamaged = false;
+
+		if (bIsPlayer) DisableInput(ABPlayerController);
+		break;
+	}
+	case ECharacterState::READY:
+	{
+		SetActorHiddenInGame(false);
+		HPBarWidget->SetHiddenInGame(false);
+		bCanBeDamaged = true;
+
+		CharacterStat->OnHPIsZero.AddLambda([&]()
+		{
+			SetCharacterState(ECharacterState::DEAD);
+		});
+
+		const auto& CharacterWidget{ Cast<UABCharacterWidget>(HPBarWidget->GetUserWidgetObject()) };
+		if (CharacterWidget) CharacterWidget->BindCharacterStat(CharacterStat);
+
+		if (bIsPlayer)
+		{
+			SetControlMode(EControlMode::GTA);
+			GetCharacterMovement()->MaxWalkSpeed = 600.0f;
+			EnableInput(ABPlayerController);
+		}
+		else
+		{
+			SetControlMode(EControlMode::NPC);
+			GetCharacterMovement()->MaxWalkSpeed = 400.0f;
+			ABAIController->RunAI();
+		}
+		break;
+	}
+	case ECharacterState::DEAD:
+	{
+		SetActorEnableCollision(false);
+		GetMesh()->SetHiddenInGame(false);
+		HPBarWidget->SetHiddenInGame(true);
+		ABAnim->SetDeadAnim();
+		bCanBeDamaged = false;
+
+		if (bIsPlayer) DisableInput(ABPlayerController);
+		else ABAIController->StopAI();
+
+		GetWorld()->GetTimerManager().SetTimer(DeadTimerHandle, FTimerDelegate::CreateLambda(
+			[&]()
+		{
+			if (bIsPlayer) ABPlayerController->RestartLevel();
+			else Destroy();
+		}
+		), DeadTimer, false);
+		break;
+	}
 	}
 }
 

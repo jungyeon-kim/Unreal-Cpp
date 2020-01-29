@@ -21,8 +21,18 @@ AABAIController::AABAIController()
 void AABAIController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
+}
 
+void AABAIController::RunAI()
+{
 	ABCHECK(BTAsset && BBAsset);
-	if (UseBlackboard(BBAsset, Blackboard)) Blackboard->SetValueAsVector(HomePosKey, InPawn->GetActorLocation());
+	if (UseBlackboard(BBAsset, Blackboard)) Blackboard->SetValueAsVector(HomePosKey, GetPawn()->GetActorLocation());
 	RunBehaviorTree(BTAsset);
+}
+
+void AABAIController::StopAI()
+{
+	const auto& BehaviorTreeComponent{ Cast<UBehaviorTreeComponent>(BrainComponent) };
+
+	if (BehaviorTreeComponent) BehaviorTreeComponent->StopTree(EBTStopMode::Safe);
 }

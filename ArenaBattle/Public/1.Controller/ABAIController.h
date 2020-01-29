@@ -20,4 +20,7 @@ public:
 public:
 	AABAIController();
 	virtual void OnPossess(APawn* InPawn) override;
+
+	void RunAI();
+	void StopAI();
 };

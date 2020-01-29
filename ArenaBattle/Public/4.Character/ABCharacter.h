@@ -11,6 +11,21 @@ class ARENABATTLE_API AABCharacter : public ACharacter
 {
 	GENERATED_BODY()
 private:
+	UPROPERTY(Transient, VisibleInstanceOnly, BlueprintReadOnly, Category = "State", Meta = (AllowPrivateAccess = true))
+	ECharacterState CurrentState;
+	UPROPERTY(Transient, VisibleInstanceOnly, BlueprintReadOnly, Category = "State", Meta = (AllowPrivateAccess = true))
+	bool bIsPlayer;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "State", Meta = (AllowPrivateAccess = true))
+	float DeadTimer;
+	UPROPERTY()
+	class AABAIController* ABAIController;
+	UPROPERTY()
+	class AABPlayerController* ABPlayerController;
+	UPROPERTY()
+	class UABAnimInstance* ABAnim;
+
+	FTimerHandle DeadTimerHandle{};
+
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Attack", Meta = (AllowPrivateAccess = true))
 	bool bIsAttacking;		// 공격중인지 여부
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Attack", Meta = (AllowPrivateAccess = true))
@@ -25,8 +40,6 @@ private:
 	float AttackLength;		// 공격판정 길이
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Attack", Meta = (AllowPrivateAccess = true))
 	float AttackRadius;		// 공격판정 반지름
-	UPROPERTY()
-	class UABAnimInstance* ABAnim;
 private:
 	void UpDown(float NewAxisValue);
 	void LeftRight(float NewAxisValue);
@@ -81,4 +94,7 @@ public:
 
 	bool CanSetWeapon();
 	void SetWeapon(class AABWeapon* NewWeapon);
+
+	ECharacterState GetCharacterState() const;
+	void SetCharacterState(ECharacterState NewState);
 };
