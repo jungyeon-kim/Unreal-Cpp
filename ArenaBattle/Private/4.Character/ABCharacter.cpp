@@ -2,10 +2,12 @@
 #include "ABPlayerController.h"
 #include "ABAIController.h"
 #include "ABWeapon.h"
+#include "ABPlayerState.h"
 #include "ABCharacterStatComponent.h"
 #include "ABAnimInstance.h"
 #include "ABCharacterWidget.h"
 #include "ABCharacterSetting.h"
+#include "ABHUDWidget.h"
 #include "DrawDebugHelpers.h"
 #include "Components/WidgetComponent.h"
 
@@ -25,12 +27,6 @@ AABCharacter::AABCharacter()
 	Camera->SetupAttachment(SpringArm);
 	HPBarWidget->SetupAttachment(GetMesh());
 
-	GetMesh()->SetRelativeLocationAndRotation({ 0.0f, 0.0f, -88.0f }, { 0.0f, -90.0f, 0.0f });
-	SpringArm->SetRelativeRotation({ -15.0f, 0.0f, 0.0f });
-	SpringArm->TargetArmLength = 400.0f;
-	HPBarWidget->SetRelativeLocation({ 0.0f, 0.0f, 180.0f });
-	HPBarWidget->SetWidgetSpace(EWidgetSpace::Screen);
-
 	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> SK_CHARM_GOLDEN{ TEXT("/Game/InfinityBladeWarriors/Character/CompleteCharacters/SK_CharM_Golden.SK_CharM_Golden") };
 	static ConstructorHelpers::FClassFinder<UAnimInstance> WARRIOR_ANIM{ TEXT("/Game/Book/Animation/WarriorAnimBlueprint.WarriorAnimBlueprint_C") };
@@ -45,6 +41,11 @@ AABCharacter::AABCharacter()
 
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("ABCharacter"));	// 콜리전 프리셋 변경
 
+	GetMesh()->SetRelativeLocationAndRotation({ 0.0f, 0.0f, -88.0f }, { 0.0f, -90.0f, 0.0f });
+	SpringArm->SetRelativeRotation({ -15.0f, 0.0f, 0.0f });
+	SpringArm->TargetArmLength = 600.0f;
+	HPBarWidget->SetRelativeLocation({ 0.0f, 0.0f, 180.0f });
+	HPBarWidget->SetWidgetSpace(EWidgetSpace::Screen);
 	ArmLengthSpeed = 3.0f;
 	ArmRotationSpeed = 10.0f;
 	GetCharacterMovement()->JumpZVelocity = 450.0f;
@@ -55,7 +56,6 @@ AABCharacter::AABCharacter()
 	SetActorHiddenInGame(true);
 	HPBarWidget->SetHiddenInGame(true);
 	bCanBeDamaged = false;
-	SetCharacterState(ECharacterState::LOADING);
 
 	DeadTimer = 5.0f;
 }
@@ -88,16 +88,10 @@ void AABCharacter::BeginPlay()
 	//	TEXT("hand_rSocket"));
 
 	bIsPlayer = IsPlayerControlled();
+	if (bIsPlayer) ABPlayerController = Cast<AABPlayerController>(GetController());
+	else ABAIController = Cast<AABAIController>(GetController());
 
-	if (bIsPlayer)
-	{
-		ABPlayerController = Cast<AABPlayerController>(GetController());
-	}
-	else
-	{
-		ABAIController = Cast<AABAIController>(GetController());
-	}
-
+	SetCharacterState(ECharacterState::LOADING);
 	SetCharacterState(ECharacterState::READY);
 
 	// UI 시스템은 플레이어 컨트롤러의 BeginPlay()에서 생성된다.
@@ -189,7 +183,15 @@ void AABCharacter::SetCharacterState(ECharacterState NewState)
 		HPBarWidget->SetHiddenInGame(true);
 		bCanBeDamaged = false;
 
-		if (bIsPlayer) DisableInput(ABPlayerController);
+		if (bIsPlayer)
+		{
+			const auto& ABPlayerState{ Cast<AABPlayerState>(GetPlayerState()) };
+			ABCHECK(ABPlayerState);
+
+			DisableInput(ABPlayerController);
+			CharacterStat->SetNewLevel(ABPlayerState->GetCharacterLevel());
+			ABPlayerController->GetHUDWidget()->BindCharacterStat(CharacterStat);
+		}
 		break;
 	}
 	case ECharacterState::READY:
