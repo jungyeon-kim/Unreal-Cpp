@@ -19,6 +19,7 @@ public:
 	AABPlayerState();
 
 	void InitPlayerData();
+	void AddGameScore();
 
 	FOnPlayerStateChangedDelegate OnPlayerStateChanged;
 

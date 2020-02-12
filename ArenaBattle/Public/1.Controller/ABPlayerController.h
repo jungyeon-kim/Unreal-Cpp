@@ -11,6 +11,8 @@ class ARENABATTLE_API AABPlayerController : public APlayerController
 private:
 	UPROPERTY()
 	class UABHUDWidget* HUDWidget;
+	UPROPERTY()
+	class AABPlayerState* ABPlayerState;
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
 	TSubclassOf<class UABHUDWidget> HUDWidgetClass;
@@ -21,6 +23,8 @@ public:
 
 	virtual void PostInitializeComponents() override;
 	virtual void OnPossess(APawn* InPawn) override;
+
+	void AddGameScore() const;
 
 	class UABHUDWidget* GetHUDWidget() const;
 };

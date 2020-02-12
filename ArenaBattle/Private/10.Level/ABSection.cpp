@@ -1,4 +1,6 @@
 #include "ABSection.h"
+#include "ABGameMode.h"
+#include "ABPlayerController.h"
 #include "ABCharacter.h"
 #include "ABItemBox.h"
 
@@ -112,7 +114,24 @@ void AABSection::OpenGates(bool bOpen)
 
 void AABSection::OnNPCSpawn()
 {
-	GetWorld()->SpawnActor<AABCharacter>(GetActorLocation() + FVector::UpVector * 88.0f, FRotator::ZeroRotator);
+	const auto& KeyNPC{ GetWorld()->
+		SpawnActor<AABCharacter>(GetActorLocation() + FVector::UpVector * 88.0f, FRotator::ZeroRotator) };
+
+	if (KeyNPC) KeyNPC->OnDestroyed.AddDynamic(this, &AABSection::OnKeyNPCDestroyed);
+}
+
+void AABSection::OnKeyNPCDestroyed(AActor* DestroyedAcrtor)
+{
+	const auto& ABCharacter{ Cast<AABCharacter>(DestroyedAcrtor) };
+	ABCHECK(ABCharacter);
+
+	const auto& ABPlayerController{ Cast<AABPlayerController>(ABCharacter->LastHitBy) };
+	ABCHECK(ABPlayerController);
+
+	const auto& ABGameMode{ Cast<AABGameMode>(GetWorld()->GetAuthGameMode()) };
+	if (ABGameMode) ABGameMode->AddScore(ABPlayerController);
+
+	SetState(ESectionState::COMPLETE);
 }
 
 void AABSection::OnTriggerBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

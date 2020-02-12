@@ -11,6 +11,12 @@ void AABPlayerState::InitPlayerData()
 	CharacterLevel = 5;
 }
 
+void AABPlayerState::AddGameScore()
+{
+	++GameScore;
+	OnPlayerStateChanged.Broadcast();
+}
+
 int32 AABPlayerState::GetGameScore() const
 {
 	return GameScore;

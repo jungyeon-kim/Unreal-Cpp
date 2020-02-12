@@ -23,7 +23,7 @@ void AABPlayerController::BeginPlay()
 	HUDWidget = CreateWidget<UABHUDWidget>(this, HUDWidgetClass);
 	HUDWidget->AddToViewport();
 
-	const auto& ABPlayerState{ Cast<AABPlayerState>(PlayerState) };
+	ABPlayerState = Cast<AABPlayerState>(PlayerState);
 	ABCHECK(ABPlayerState);
 	HUDWidget->BindPlayerState(ABPlayerState);
 	ABPlayerState->OnPlayerStateChanged.Broadcast();
@@ -34,6 +34,11 @@ void AABPlayerController::OnPossess(APawn* InPawn)
 	Super::OnPossess(InPawn);
 
 	//ABLOG_S(Warning);
+}
+
+void AABPlayerController::AddGameScore() const
+{
+	ABPlayerState->AddGameScore();
 }
 
 UABHUDWidget* AABPlayerController::GetHUDWidget() const
